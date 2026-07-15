@@ -112,12 +112,7 @@ Most positions are empty (no shadow point) — only marked tokens have correspon
 硬提示不是文字 Prompt，而是高维语义方向向量。
 A hard prompt is not text — it is a high-dimensional semantic direction vector.
 
-实现方式：在影子点被命中时，直接在当前层 Transformer 的残差流输入上加一个方向向量。
-Implementation: when a shadow point is hit, a direction vector is added directly to the residual stream input of the current Transformer layer.
 
-```
-x_layer_n = x_layer_n + 硬提示向量 × 强度系数
-x_layer_n = x_layer_n + hard_prompt_vector × strength
 ```
 
 核心原理：以"语气坚定"为例——通过对比实验（加引导 / 不加引导）得出方向向量 v = β - α。
