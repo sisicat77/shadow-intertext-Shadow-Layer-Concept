@@ -1,3 +1,4 @@
+[Uploading README.md…]()
 # 影子层构思 / Shadow Layer Concept
 
 **作者 / Author：sisicat77**  
@@ -111,16 +112,6 @@ Most positions are empty (no shadow point) — only marked tokens have correspon
 
 硬提示不是文字 Prompt，而是高维语义方向向量。
 A hard prompt is not text — it is a high-dimensional semantic direction vector.
-
-
-```
-
-核心原理：以"语气坚定"为例——通过对比实验（加引导 / 不加引导）得出方向向量 v = β - α。
-Core principle: using "firm tone" as an example — direction vector v = β - α is derived through contrastive experiments (guided vs. unguided).
-
-在推理时将此向量注入残差流，模型就会向"语气坚定"方向偏移。
-During inference, injecting this vector into the residual stream shifts the model's output toward a "firm tone".
-
 ### 软提示（浮标机制）/ Soft Prompt (Buoy Mechanism)
 
 软提示在影子空间中作为可检索的参考标记存在，不施加力。
@@ -133,13 +124,6 @@ Analogy:
 - Hard prompt: "Take three steps forward — you must."
 - 软提示：地上画了一个圈，里面写着"这里可能有帮助"，模型可以自己走进圈子看看，也可以不理
 - Soft prompt: A circle drawn on the ground that says "this might help." The model can step inside to look, or ignore it.
-
-在工程上，软提示向量以额外的 attention key-value 形式挂载在模型层上，模型可以选择 attend 到它或忽略它。
-In engineering terms, the soft prompt vector is mounted as an extra attention key-value pair — the model can choose to attend to it or ignore it.
-
-这类似于 RAG 的思路，但发生在向量层而非文本层。
-This is similar to RAG in spirit, but operates at the vector level rather than the text level.
-
 ---
 
 ## 执行流程 / Execution Flow
@@ -158,17 +142,15 @@ This is similar to RAG in spirit, but operates at the vector level rather than t
             │
        ┌────┴────┐
        ▼         ▼
-       否 / No   是 / Yes
-       │          │
+      否 / No   是 / Yes
+      │          │
        │          ├── 检索影子提示表 / Look up shadow prompt table
        │          │
-       │          ├── 下一层 Transformer 输入：
-       │          │   残差流 + 硬提示向量（强制）
-       │          │   Next layer input: residual + hard vector (forced)
+       │          ├── 注入硬提示（强制）
+       │          │   Inject hard prompt (forced)
        │          │
-       │          └── 同层/额外层：
-       │              软提示向量挂载为 attention key（可选）
-       │              Soft vector as attention key (optional)
+       │          └── 挂载软提示（可选）
+       │              Mount soft prompt (optional)
        │
        └── 什么都不做，保持原输出
            Nothing happens, output unchanged
@@ -203,8 +185,8 @@ However, transfer is possible through knowledge distillation:
    Source model (with shadow layer) runs on trigger scenarios, producing guided outputs
 2. 同样输入在目标模型（无影子层）上运行，产生原始输出
    Same inputs run on target model (without shadow layer), producing original outputs
-3. 对比两组残差流激活值差异 → 为目标模型计算新的影子方向向量
-   Compare activation differences → compute new shadow direction vectors for the target model
+3. 对比两组输出的差异 → 推导目标模型所需的引导信号
+   Compare output differences → derive guidance signals for the target model
 
 这是让 AI 教 AI 的过程，不需要人工重新标记。
 This is AI teaching AI — no manual re-labeling needed.
@@ -217,7 +199,7 @@ This is AI teaching AI — no manual re-labeling needed.
 |---|---|
 | 影子层是内部并行路径 / Shadow layer as internal parallel path | 成立 / Feasible |
 | 影子点是高维坐标锚点 / Shadow points as coordinate anchors | 成立，连续向量空间的基本性质 / Feasible — property of continuous vector space |
-| 硬提示 = 方向向量注入残差流 / Hard prompt = direction vector injection | 成立 / Feasible |
+| 硬提示 = 语义方向向量引导 / Hard prompt = semantic direction guidance | 成立 / Feasible |
 | 软提示 = 浮标可检索但不强制 / Soft prompt = retrievable buoy, not forced | 成立 / Feasible |
 | 映射函数一一对应 / One-to-one mapping function | 成立 / Feasible |
 | 动态更新 / Dynamic updates | 可做，权限分层即可 / Feasible with tiered permissions |
